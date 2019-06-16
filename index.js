@@ -18,8 +18,7 @@ function describe() {
   const filePath = path.dirname(require.main.filename);
   const modifiedFile = mainFile
     .toString()
-    //.replace("require('../../rpg-test').install();", '')
-    .replace("require('rpg-test').install();", '');
+    .replace(/(const|let) describe\s.*/, '');
   ev.emit('added', { modifiedFile, filePath });
 }
 
@@ -40,13 +39,12 @@ function dumpTmpFile({ modifiedFile, filePath }) {
 }
 module.exports = {
   install: function install() {
-    console.log(process.env, '<====');
-    global.describe = describe;
-    console.log(global.describe);
     mocha = new Mocha({
       ui: 'bdd',
       reporter: 'spec',
       timeout: 25000
     });
+
+    return describe;
   }
 };
