@@ -1,6 +1,6 @@
 {
   "name": "rpg-test",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "this just test for RunKit",
   "main": "index.js",
   "scripts": {
