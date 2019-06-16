@@ -42,6 +42,7 @@ module.exports = {
   install: function install() {
     console.log(process.env, '<====');
     global.describe = describe;
+    console.log(global.describe);
     mocha = new Mocha({
       ui: 'bdd',
       reporter: 'spec',
