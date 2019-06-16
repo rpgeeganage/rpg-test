@@ -23,18 +23,12 @@ function describe() {
 }
 
 function dumpTmpFile({ modifiedFile, filePath }) {
-  tmp.file(function(err, pathStr, fd, cleanup) {
-    if (err) throw err;
-
-    fs.writeFileSync(pathStr, modifiedFile);
-    const newPath = path.join(filePath, 'tmp.js');
-    fs.copyFileSync(pathStr, newPath);
-    mocha.addFile(newPath);
-    mocha.run((failures) => {
-      console.log(failures);
-      cleanup();
-      fs.unlinkSync(newPath);
-    });
+  const newPath = path.join(filePath, 'tmp.js');
+  fs.writeFileSync(newPath, modifiedFile);
+  mocha.addFile(newPath);
+  mocha.run((failures) => {
+    console.log(failures);
+    fs.unlinkSync(newPath);
   });
 }
 module.exports = {
