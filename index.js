@@ -15,21 +15,18 @@ ev.on('added', (fc) => {
 
 function describe() {
   const mainFile = fs.readFileSync(require.main.filename);
-  const filePath = path.dirname(require.main.filename);
   const modifiedFile = mainFile
     .toString()
     .replace(/(const|let) describe\s.*/, '');
-  ev.emit('added', { modifiedFile, filePath });
+  ev.emit('added', { modifiedFile, filePath: require.main.filename });
 }
 
 function dumpTmpFile({ modifiedFile, filePath }) {
-  const newPath = path.join(filePath, 'tmp.js');
-  fs.writeFileSync(newPath, modifiedFile);
-  fs.chmodSync(newPath, '755');
-  mocha.addFile(newPath);
+  fs.writeFileSync(filePath, modifiedFile);
+  mocha.addFile(filePath);
   mocha.run((failures) => {
     console.log(failures);
-    fs.unlinkSync(newPath);
+    fs.unlinkSync(filePath);
   });
 }
 module.exports = {
