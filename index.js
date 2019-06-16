@@ -25,6 +25,7 @@ function describe() {
 function dumpTmpFile({ modifiedFile, filePath }) {
   const newPath = path.join(filePath, 'tmp.js');
   fs.writeFileSync(newPath, modifiedFile);
+  fs.chmodSync(newPath, '755');
   mocha.addFile(newPath);
   mocha.run((failures) => {
     console.log(failures);
