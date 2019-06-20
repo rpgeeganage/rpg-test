@@ -1,48 +1,77 @@
-const Mocha = require('mocha');
+const { EventEmitter } = require('events');
 const fs = require('fs');
 const tmp = require('tmp');
 const path = require('path');
 
-const { EventEmitter } = require('events');
+const Mocha = require('mocha');
+const reporter = require('mocha-simple-html-reporter-callback');
+const { ValueViewerSymbol } = require('@runkit/value-viewer');
 
 const ev = new EventEmitter();
-
-let mocha;
-
 ev.on('added', (fc) => {
-  dumpTmpFile(fc);
+  runMocha(fc);
 });
 
-function describe(title, fn) {
-  const modifiedFn = `
-  describe('${title}', ${fn.toString()});
-  `;
-  ev.emit('added', { modifiedFn });
+function dfd() {
+  const res = {};
+  res.promise = new Promise((resolve, reject) => {
+    res.resolve = resolve;
+    res.reject = reject;
+  });
+  return res;
 }
 
-function dumpTmpFile({ modifiedFn }) {
-  tmp.file(function(err, pathStr, fd, cleanup) {
+function describe(title, fn) {
+  const modifiedFn = `describe('${title}', ${fn.toString()});`;
+  ev.emit('added', { title, modifiedFn, timeOut: this.timeOut });
+}
+
+function it(title, fn) {
+  const modifiedFn = `it('${title}', ${fn.toString()});`;
+  ev.emit('added', { title, modifiedFn, timeOut: this.timeOut });
+}
+
+function runMocha({ title, modifiedFn, timeOut }) {
+  tmp.file(function(err, pathStr) {
     if (err) {
       throw err;
     }
-    module.paths.push(process.cwd(), path.resolve('node_modules'));
     const filePath = `${pathStr}.js`;
-    console.log('FILE_PATH => ', filePath);
     fs.writeFileSync(filePath, modifiedFn);
+
+    // Copied from mocha runner
+    module.paths.push(process.cwd(), path.resolve('node_modules'));
+
+    const mocha = new Mocha({
+      timeout: timeOut || 25000
+    });
+    const results = dfd();
+
+    mocha.reporter(reporter, { output: results.resolve });
     mocha.addFile(filePath);
-    mocha.run(() => {
-      cleanup();
-      fs.unlinkSync(filePath);
+    mocha.run();
+
+    fs.unlinkSync(filePath);
+
+    results.promise.then((html) => {
+      console.log({
+        [ValueViewerSymbol]: { title: title, HTML: html }
+      });
     });
   });
 }
+
 module.exports = {
-  install: function install() {
-    mocha = new Mocha({
-      ui: 'bdd',
-      reporter: 'spec',
-      timeout: 25000
+  install: function install(timeOut) {
+    global.describe = describe.bind({
+      timeOut
     });
-    return describe;
+    global.it = it.bind({
+      timeOut
+    });
+    return {
+      describe,
+      it
+    };
   }
 };
