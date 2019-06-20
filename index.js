@@ -1,7 +1,5 @@
 const Mocha = require('mocha');
 const fs = require('fs');
-const tmp = require('tmp');
-const path = require('path');
 
 const { EventEmitter } = require('events');
 
@@ -18,15 +16,19 @@ function describe() {
   const modifiedFile = mainFile
     .toString()
     .replace(/(const|let) describe\s.*/, '');
-  ev.emit('added', { modifiedFile, filePath: require.main.filename });
+
+  const modifiedFileContent = `
+  const { describe, before, it } = require('mocha');
+  ${modifiedFile}
+  `;
+
+  ev.emit('added', { modifiedFileContent });
 }
 
-function dumpTmpFile({ modifiedFile, filePath }) {
-  fs.writeFileSync(filePath, modifiedFile);
-  mocha.addFile(filePath);
+function dumpTmpFile({ modifiedFile }) {
+  mocha.suite.addTest(eval(modifiedFile));
   mocha.run((failures) => {
     console.log(failures);
-    fs.unlinkSync(filePath);
   });
 }
 module.exports = {
