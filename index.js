@@ -21,6 +21,8 @@ function describe(title, fn) {
 }
 
 function dumpTmpFile({ modifiedFn }) {
+  console.log(modifiedFn);
+
   tmp.file(function(err, pathStr, fd, cleanup) {
     if (err) {
       throw err;
