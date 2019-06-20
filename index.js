@@ -13,24 +13,21 @@ ev.on('added', (fc) => {
   dumpTmpFile(fc);
 });
 
-function describe() {
-  const mainFile = fs.readFileSync(require.main.filename);
-  const filePath = path.dirname(require.main.filename);
-  console.log(filePath);
-  const modifiedFile = mainFile
-    .toString()
-    .replace(/const\sdescribe\s=\srequire\(.*\).install\(\);/, '');
-  ev.emit('added', { modifiedFile });
+function describe(title, fn) {
+  const modifiedFn = `
+  describe('${title}', ${fn.toString()});
+  `;
+  ev.emit('added', { modifiedFn });
 }
 
-function dumpTmpFile({ modifiedFile }) {
+function dumpTmpFile({ modifiedFn }) {
   tmp.file(function(err, pathStr, fd, cleanup) {
     if (err) {
       throw err;
     }
     module.paths.push(process.cwd(), path.resolve('node_modules'));
-    console.log(modifiedFile);
-    fs.writeFileSync(pathStr, modifiedFile);
+    console.log(modifiedFn, '<==');
+    fs.writeFileSync(pathStr, modifiedFn);
     mocha.addFile(pathStr);
     mocha.run(() => {
       cleanup();
