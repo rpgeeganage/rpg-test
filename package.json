@@ -16,7 +16,9 @@
     "url": "https://github.com/rpgeeganage/rpg-test/issues"
   },
   "dependencies": {
+    "@runkit/value-viewer": "^1.0.0",
     "mocha": "^6.1.4",
+    "mocha-simple-html-reporter-callback": "^1.1.0",
     "tmp": "^0.1.0"
   },
   "homepage": "https://github.com/rpgeeganage/rpg-test#readme",
