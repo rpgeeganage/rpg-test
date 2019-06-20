@@ -19,7 +19,7 @@ function describe() {
   console.log(filePath);
   const modifiedFile = mainFile
     .toString()
-    .replace(/require\(.*\).install\(\);/, '');
+    .replace(/const\sdescribe\s=\srequire\(.*\).install\(\);/, '');
   ev.emit('added', { modifiedFile });
 }
 
@@ -44,6 +44,6 @@ module.exports = {
       reporter: 'spec',
       timeout: 25000
     });
-    global.describe = describe;
+    return describe;
   }
 };
