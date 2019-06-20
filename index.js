@@ -26,8 +26,8 @@ function dumpTmpFile({ modifiedFn }) {
       throw err;
     }
     module.paths.push(process.cwd(), path.resolve('node_modules'));
-    console.log(modifiedFn, '<==');
-    fs.writeFileSync(pathStr, modifiedFn);
+    console.log(`${pathStr}.js`, modifiedFn);
+    fs.writeFileSync(`${pathStr}.js`, modifiedFn);
     mocha.addFile(pathStr);
     mocha.run(() => {
       cleanup();
