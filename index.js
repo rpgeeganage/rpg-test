@@ -29,6 +29,7 @@ function dumpTmpFile({ modifiedFile }) {
       throw err;
     }
     module.paths.push(process.cwd(), path.resolve('node_modules'));
+    console.log(modifiedFile);
     fs.writeFileSync(pathStr, modifiedFile);
     mocha.addFile(pathStr);
     mocha.run(() => {
@@ -38,11 +39,11 @@ function dumpTmpFile({ modifiedFile }) {
 }
 module.exports = {
   install: function install() {
-    global.describe = describe;
     mocha = new Mocha({
       ui: 'bdd',
       reporter: 'spec',
       timeout: 25000
     });
+    global.describe = describe;
   }
 };
