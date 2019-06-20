@@ -21,18 +21,18 @@ function describe(title, fn) {
 }
 
 function dumpTmpFile({ modifiedFn }) {
-  console.log(modifiedFn);
-
   tmp.file(function(err, pathStr, fd, cleanup) {
     if (err) {
       throw err;
     }
     module.paths.push(process.cwd(), path.resolve('node_modules'));
-    console.log(`${pathStr}.js`, modifiedFn);
-    fs.writeFileSync(`${pathStr}.js`, modifiedFn);
-    mocha.addFile(pathStr);
+    const filePath = `${pathStr}.js`;
+    console.log('FILE_PATH => ', filePath);
+    fs.writeFileSync(filePath, modifiedFn);
+    mocha.addFile(filePath);
     mocha.run(() => {
       cleanup();
+      fs.unlinkSync(filePath);
     });
   });
 }
