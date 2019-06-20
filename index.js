@@ -25,8 +25,8 @@ function describe() {
   ev.emit('added', { modifiedFileContent });
 }
 
-function dumpTmpFile({ modifiedFile }) {
-  mocha.suite.addTest(eval(modifiedFile));
+function dumpTmpFile({ modifiedFileContent }) {
+  mocha.suite.addTest(eval(modifiedFileContent));
   mocha.run((failures) => {
     console.log(failures);
   });
