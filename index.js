@@ -1,5 +1,7 @@
 const Mocha = require('mocha');
 const fs = require('fs');
+const tmp = require('tmp');
+const path = require('path');
 
 const { EventEmitter } = require('events');
 
@@ -13,32 +15,34 @@ ev.on('added', (fc) => {
 
 function describe() {
   const mainFile = fs.readFileSync(require.main.filename);
+  const filePath = path.dirname(require.main.filename);
+  console.log(filePath);
   const modifiedFile = mainFile
     .toString()
-    .replace(/(const|let) describe\s.*/, '');
-
-  const modifiedFileContent = `
-  const { describe, before, it } = require('mocha');
-  ${modifiedFile}
-  `;
-
-  ev.emit('added', { modifiedFileContent });
+    .replace(/require\(.*\).install\(\);/, '');
+  ev.emit('added', { modifiedFile });
 }
 
-function dumpTmpFile({ modifiedFileContent }) {
-  mocha.suite.addTest(eval(modifiedFileContent));
-  mocha.run((failures) => {
-    console.log(failures);
+function dumpTmpFile({ modifiedFile }) {
+  tmp.file(function(err, pathStr, fd, cleanup) {
+    if (err) {
+      throw err;
+    }
+    module.paths.push(process.cwd(), path.resolve('node_modules'));
+    fs.writeFileSync(pathStr, modifiedFile);
+    mocha.addFile(pathStr);
+    mocha.run(() => {
+      cleanup();
+    });
   });
 }
 module.exports = {
   install: function install() {
+    global.describe = describe;
     mocha = new Mocha({
       ui: 'bdd',
       reporter: 'spec',
       timeout: 25000
     });
-
-    return describe;
   }
 };

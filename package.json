@@ -19,5 +19,7 @@
     "mocha": "^6.1.4",
     "tmp": "^0.1.0"
   },
-  "homepage": "https://github.com/rpgeeganage/rpg-test#readme"
+  "homepage": "https://github.com/rpgeeganage/rpg-test#readme",
+  "devDependencies": {},
+  "keywords": []
 }
